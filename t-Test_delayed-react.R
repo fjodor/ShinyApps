@@ -1,6 +1,6 @@
 # t-Test: Direct vs. Delayed reactivity
 
-# Whenever an input changes, the server function re-calculates everything!
+# Adding a button to re-calculate only when the user explicitly wants to do so.
 
 library(shiny)
 library(compute.es)

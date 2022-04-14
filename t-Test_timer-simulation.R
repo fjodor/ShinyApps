@@ -1,10 +1,12 @@
 # t-Test: Direct vs. Delayed reactivity
 
-# Whenever an input changes, the server function re-calculates everything!
+# Re-calculating every 3 seconds to illustrate that it is a simulation.
+# See https://mastering-shiny.org/basic-reactivity.html#controlling-timing-of-evaluation
 
 library(shiny)
 library(compute.es)
 library(report)
+library(dplyr)
 
 ui <- fluidPage(
   
@@ -28,22 +30,28 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
 
+  timer <- reactiveTimer(3000)
+  
   output$ttest <- renderText({
-
-    set.seed(2022)
-    data <- data.frame(
-      x = c(rnorm(n = input$N, mean = input$mean1, sd = input$sd1),
-            rnorm(n = input$N, mean = input$mean2, sd = input$sd2)),
-      group = c(rep("Group 1", input$N), rep("Group 2",input$N))
-    )
     
-    ttest <- t.test(x ~ group, data = data)
+    set.seed(2022)
+    data <- reactive({
+      timer()
+      data.frame(
+        x = c(rnorm(n = input$N, mean = input$mean1, sd = input$sd1),
+              rnorm(n = input$N, mean = input$mean2, sd = input$sd2)),
+        group = c(rep("Group 1", input$N), rep("Group 2",input$N))
+      )
+    })  
+    
+    ttest <- t.test(x ~ group, data = data())
     effsize <- tes(ttest$statistic, n.1 = input$N, n.2 = input$N, verbose = FALSE)
     
-    paste("Mean in Group 1:", round(mean(data$x[data$group == "Group 1"]), 2), "<br>",
-          "Mean in Group 2:", round(mean(data$x[data$group == "Group 2"]), 2), "<br><br>",
-          "Standard Deviation in Group 1:", round(sd(data$x[data$group == "Group 1"]), 2), "<br>",
-          "Standard Deviation in Group 2:", round(sd(data$x[data$group == "Group 2"]), 2), "<br><br>",
+    paste(
+          "Mean in Group 1:", round(mean(data()$x[data()$group == "Group 1"]), 2), "<br><br>",
+          "Mean in Group 2:", round(mean(data()$x[data()$group == "Group 2"]), 2), "<br><br>",
+          "Standard Deviation in Group 1:", round(sd(data()$x[data()$group == "Group 1"]), 2), "<br>",
+          "Standard Deviation in Group 2:", round(sd(data()$x[data()$group == "Group 2"]), 2), "<br><br>",
           "<b>The p value of our t-Test is:", format.pval(ttest$p.value, digits = 2), "</p>",
           "The Effect Size - Cohen's d - is:", effsize$d, "</b><br><br>",
           "More detailed interpretation:<br><br>", report(ttest))
