@@ -32,26 +32,30 @@ server <- function(input, output, session) {
 
   timer <- reactiveTimer(3000)
   
+  set.seed(2022)
+  data <- reactive({
+    timer()
+    data.frame(
+      x = c(rnorm(n = input$N, mean = input$mean1, sd = input$sd1),
+            rnorm(n = input$N, mean = input$mean2, sd = input$sd2)),
+      group = c(rep("Group 1", input$N), rep("Group 2",input$N))
+    )
+  })  
+
   output$ttest <- renderText({
     
-    set.seed(2022)
-    data <- reactive({
-      timer()
-      data.frame(
-        x = c(rnorm(n = input$N, mean = input$mean1, sd = input$sd1),
-              rnorm(n = input$N, mean = input$mean2, sd = input$sd2)),
-        group = c(rep("Group 1", input$N), rep("Group 2",input$N))
-      )
-    })  
+    data <- data()
     
-    ttest <- t.test(x ~ group, data = data())
+    ttest <- t.test(x ~ group, data = data)
+    options(warn = -1)
     effsize <- tes(ttest$statistic, n.1 = input$N, n.2 = input$N, verbose = FALSE)
+    options(warn = 0)
     
     paste(
-          "Mean in Group 1:", round(mean(data()$x[data()$group == "Group 1"]), 2), "<br><br>",
-          "Mean in Group 2:", round(mean(data()$x[data()$group == "Group 2"]), 2), "<br><br>",
-          "Standard Deviation in Group 1:", round(sd(data()$x[data()$group == "Group 1"]), 2), "<br>",
-          "Standard Deviation in Group 2:", round(sd(data()$x[data()$group == "Group 2"]), 2), "<br><br>",
+          "Mean in Group 1:", round(mean(data$x[data$group == "Group 1"]), 2), "<br>",
+          "Mean in Group 2:", round(mean(data$x[data$group == "Group 2"]), 2), "<br><br>",
+          "Standard Deviation in Group 1:", round(sd(data$x[data$group == "Group 1"]), 2), "<br>",
+          "Standard Deviation in Group 2:", round(sd(data$x[data$group == "Group 2"]), 2), "<br><br>",
           "<b>The p value of our t-Test is:", format.pval(ttest$p.value, digits = 2), "</p>",
           "The Effect Size - Cohen's d - is:", effsize$d, "</b><br><br>",
           "More detailed interpretation:<br><br>", report(ttest))
