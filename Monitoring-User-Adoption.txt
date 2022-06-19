@@ -1,0 +1,47 @@
+Source: https://appsilon.com/monitoring-r-shiny-user-adoption/
+
+1. shiny.stats
+
+library(devtools)
+install_github("Appsilon/shiny.stats")
+
+Benötigt Datenbankverbindung
+Im Beispiel: RSQLite in Verbindung mit DBI
+
+Außerhalb UI und Server: get_user()
+
+Funktionen innerhalb von server()
+log_login()
+log_click()
+log_input()
+log_logout()
+
+Es gibt ein kurzes, simples Code Snippet für ein Shiny Dashboard, das die Infos anzeigt
+shiny_stats_server()
+
+
+2. ShinyLogs
+
+Im Beispiel: Log Info im JSON-Format in logs/ Verzeichnis
+track_usage(storage_mode = store_json(path = "logs/")
+
+Tipp: Online JSON formatter verwenden, z. B. jsonformatter.curiousconcept.com/
+
+
+3. Google Analytics
+
+größere Herausforderung als die ersten beiden
+
+- Google Analytics Account benötigt
+- New Property anlegen
+- Dateien von github herunterladen: app.R, cerulean.css, google-analytics.html, sunshine.RDS
+- von Google Analytics ein Global Site Tag kopieren: gtag.js
+- diese Info in google-analytics.html einfügen
+- Achtung: Änderungen werden immer erst nach einer Weile (einigen Minuten) wirksam bzw. sichtbar
+- Infos ablesbar im Google Analytics Account
+
+
+Fazit
+
+- Google Analytics klarer Gewinner und Standard
+- Die ersten beiden sind für kleinere Apps leicht aufzusetzen
