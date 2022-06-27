@@ -1,0 +1,6 @@
+Hadley's Shiny Book
+
+Golem book
+
+David Granjon's Book:
+https://unleash-shiny.rinterface.com/welcome.html
