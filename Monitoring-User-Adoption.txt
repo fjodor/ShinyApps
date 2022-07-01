@@ -45,3 +45,9 @@ Fazit
 
 - Google Analytics klarer Gewinner und Standard
 - Die ersten beiden sind für kleinere Apps leicht aufzusetzen
+
+
+Weitere Option: Hotjar
+https://appsilon.com/r-shiny-hotjar/
+
+Anmeldung, kostenpflichtig; Javascript-Code in Shiny-Ordner und Header Tag einbetten
