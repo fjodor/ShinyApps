@@ -4,3 +4,8 @@ Golem book
 
 David Granjon's Book:
 https://unleash-shiny.rinterface.com/welcome.html
+
+
+# Creating an Instant Answer Oracle with httr and Shiny
+https://bensstats.wordpress.com/2022/06/12/robservations-32-creating-an-instant-answer-oracle-with-httr-and-shiny/
+
