@@ -2,3 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
+albums2000.rds
+songs2000.rds
+topalbums.rds
+topsongs.rds
+topsongs.Rda
