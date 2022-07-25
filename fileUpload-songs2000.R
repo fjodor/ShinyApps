@@ -15,7 +15,7 @@ ui <- fluidPage(
                 accept = ".rds", multiple = FALSE)
     ),
     mainPanel(
-      h2("Selected Data, taken from uploaded file"),
+      h2("Revenue of all songs over time"),
       plotOutput(outputId = "plot")
     )
   )
