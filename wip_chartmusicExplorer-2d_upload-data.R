@@ -2,16 +2,6 @@ library(chartmusicdata)
 library(shiny)
 library(tidyverse)
 
-# Abgeleitet von chartmusicExplorer-2b-update-and-plot.R
-
-# artists <- songs2000 %>% 
-#   count(artist, sort = TRUE) %>% 
-#   slice_head(n = 10) %>% 
-#   pull(artist)
-# 
-# songsdata <- songs2000 %>% 
-#   filter(artist %in% artists)
-
 ui <- fluidPage(
   
   titlePanel("File Upload"),
@@ -51,7 +41,7 @@ server <- function(input, output, session) {
 
     band_react <- reactive({
       req(input$upload)
-      band_react <- input$bandname
+      input$bandname
       print(band_react)
     })
     
@@ -92,12 +82,13 @@ server <- function(input, output, session) {
       filter(data(), artist == input$bandname)
     })
     
-    observeEvent(band(), {
+    observe({
+      x <- band()
       songs <- data() %>% 
         filter(artist == input$bandname) %>% 
         pull(song)
       updateSelectInput(inputId = "song", choices = songs)
-    })
+    }) %>% bindEvent()
 }
 
 shinyApp(ui = ui, server = server)
