@@ -39,25 +39,14 @@ server <- function(input, output, session) {
              )
       })
 
-    # Update drop down of bands: Allow only Top 20
+    # Update drop down of bands: Allow max. of Top 20 songs
     
     observe({
       req(data())
       data <- data()
       updateSelectInput(inputId = "bandname", choices = data %>% count(artist, sort = TRUE) %>% 
-                          head(n = min(20, nrow(.))))
+                          head(n = min(20, nrow(.))) %>% pull(artist))
     })
-    
-    # input$bandname does not need to be updated?
-    # Yes, it does: when new data is uploaded
-    
-    # band_react <- reactive({
-    #   req(input$upload)
-    #   input$bandname
-    #   # print(band_react)
-    # })
-    
-    # band_react <- reactive(input$bandname)
     
     band <- reactive({
       req(input$bandname)
@@ -69,6 +58,13 @@ server <- function(input, output, session) {
         pull(song)
       updateSelectInput(inputId = "song", choices = songs)
     }) # %>% bindEvent()
+
+    # Table output
+    
+    output$head <- renderTable({
+      req(band())
+      head(band(), n = 5)
+    })
     
     # Render plot
     
@@ -96,7 +92,7 @@ server <- function(input, output, session) {
         scale_y_continuous(labels = scales::label_dollar(scale = 1000)) +
         theme_bw(base_size = 14) +
         theme(axis.text.x = element_text(angle = 90))
-      
+  
     })
 }
 
