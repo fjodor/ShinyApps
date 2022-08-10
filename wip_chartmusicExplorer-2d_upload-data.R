@@ -26,7 +26,7 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
 
-    # Here we deal with the file input
+    # Deal with the file input after user supplied a file
 
     data <- reactive({
       req(input$upload)
@@ -39,6 +39,18 @@ server <- function(input, output, session) {
              )
       })
 
+    # Update drop down of bands: Allow only Top 20
+    
+    observe({
+      req(data())
+      data <- data()
+      updateSelectInput(inputId = "bandname", choices = data %>% count(artist, sort = TRUE) %>% 
+                          head(n = min(20, nrow(.))))
+    })
+    
+    # input$bandname does not need to be updated?
+    # Yes, it does: when new data is uploaded
+    
     # band_react <- reactive({
     #   req(input$upload)
     #   input$bandname
@@ -47,19 +59,32 @@ server <- function(input, output, session) {
     
     # band_react <- reactive(input$bandname)
     
+    band <- reactive({
+      req(input$bandname)
+      filter(data(), artist == input$bandname)
+    })
+    
+    observe({
+      songs <- band() %>% 
+        pull(song)
+      updateSelectInput(inputId = "song", choices = songs)
+    }) # %>% bindEvent()
+    
+    # Render plot
+    
     output$bandplot <- renderPlot({
-
+      
       req(band())      
-
+      
       plotdata_full <- band()
-  
+      
       plotdata_highlight <- plotdata_full %>% 
         filter(song == input$song)
-  
+      
       ggplot(plotdata_full, aes(x = year_month, y = indicativerevenue)) +
         geom_point(size = 1.5, color = "darkgrey") +
         geom_point(data = plotdata_highlight, size = 2.5, color = "darkblue") +
-        labs(title = paste("Songs by", band_react()),
+        labs(title = paste("Songs by", input$bandname),
              subtitle = paste("Highlighted Song:", input$song),
              x = "Month and Year",
              y = "Indicative Revenue in USD") +
@@ -71,27 +96,8 @@ server <- function(input, output, session) {
         scale_y_continuous(labels = scales::label_dollar(scale = 1000)) +
         theme_bw(base_size = 14) +
         theme(axis.text.x = element_text(angle = 90))
-        
+      
     })
-  
-    observe({
-      req(data())
-      # updateSelectInput(inputId = "bandname", choices = data()$artist |> as.factor() |> levels())
-    })
-    
-    band <- reactive({
-      req(input$bandname)
-      filter(data(), artist == input$bandname)
-    })
-    
-    observe({
-      # x <- input$bandname
-      songs <- band() %>% 
-        # filter(artist == input$bandname) %>% 
-        # filter(artist == x)
-        pull(song)
-      updateSelectInput(inputId = "song", choices = songs)
-    }) # %>% bindEvent()
 }
 
 shinyApp(ui = ui, server = server)
