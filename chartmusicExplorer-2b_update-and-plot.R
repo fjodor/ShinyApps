@@ -63,7 +63,8 @@ server <- function(input, output, session) {
       filter(songsdata, artist == input$bandname)
     })
     
-    observeEvent(band(), {
+    observeEvent(band(), {     # observeEvent works here, but is outdated
+                               # recommended as of Shiny 1.6.0: observe %>% bindEvent()
       songs <- songsdata %>% 
         filter(artist == input$bandname) %>% 
         pull(song)
