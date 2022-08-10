@@ -12,8 +12,8 @@ ui <- fluidPage(
       fileInput(inputId = "upload", 
                 label = "Upload a songs2000 dataset (.rds format)", buttonLabel = "Upload ...",
                 accept = ".rds", multiple = FALSE),
-      selectInput(inputId = "bandname", label = "Select band / artist", choices = NULL, selected = "Drake"),
-      selectInput(inputId = "song", label = "Select song to highlight", choices = NULL, selected = "God's Plan")
+      selectInput(inputId = "bandname", label = "Select band / artist", choices = NULL),
+      selectInput(inputId = "song", label = "Select song to highlight", choices = NULL)
     ),
     
     mainPanel(
@@ -39,22 +39,19 @@ server <- function(input, output, session) {
              )
       })
 
-    band_react <- reactive({
-      req(input$upload)
-      input$bandname
-      print(band_react)
-    })
+    # band_react <- reactive({
+    #   req(input$upload)
+    #   input$bandname
+    #   # print(band_react)
+    # })
     
     # band_react <- reactive(input$bandname)
     
     output$bandplot <- renderPlot({
 
-      req(input$upload)      
-      req(input$bandname)
-      req(input$song)
-    
-      plotdata_full <- data() %>% 
-        filter(artist == band_react())
+      req(band())      
+
+      plotdata_full <- band()
   
       plotdata_highlight <- plotdata_full %>% 
         filter(song == input$song)
@@ -77,18 +74,24 @@ server <- function(input, output, session) {
         
     })
   
+    observe({
+      req(data())
+      # updateSelectInput(inputId = "bandname", choices = data()$artist |> as.factor() |> levels())
+    })
+    
     band <- reactive({
       req(input$bandname)
       filter(data(), artist == input$bandname)
     })
     
     observe({
-      x <- band()
-      songs <- data() %>% 
-        filter(artist == input$bandname) %>% 
+      # x <- input$bandname
+      songs <- band() %>% 
+        # filter(artist == input$bandname) %>% 
+        # filter(artist == x)
         pull(song)
       updateSelectInput(inputId = "song", choices = songs)
-    }) %>% bindEvent()
+    }) # %>% bindEvent()
 }
 
 shinyApp(ui = ui, server = server)
