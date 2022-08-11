@@ -48,4 +48,43 @@ layout: true
 
 ---
 
-## Bla
+## Berühmte erste Worte: "Hallo Welt"
+
+.pull-left[
+```{r, echo = TRUE, eval = FALSE}
+# install.packages("shiny")
+library(shiny)
+
+ui <- fluidPage(
+  "Hallo, Welt!"
+)
+
+server <- function(input, output, session) {
+}
+
+shinyApp(ui, server)  #<<
+```
+]
+
+--
+
+.pull-right[
+.large[
+Aufbau dieser simplen App:
+
+* ***User Interface***:  
+  Was sieht der Nutzer?
+
+* ***Server***:  
+  Wie verarbeitet R die Nutzereingaben?  
+  (Hier gar nicht)
+
+]]
+
+---
+
+## Eine simple App mit Server-Funktion
+
+
+---
+
