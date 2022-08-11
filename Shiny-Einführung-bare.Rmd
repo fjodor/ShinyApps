@@ -1,0 +1,51 @@
+---
+title: "Shiny: Interaktive Webapplikationen mit R"
+subtitle: "Einführung"
+author: "Wolf Riepl"
+institute: " "
+date: "Last Updated: `r Sys.time()`"
+output:
+  xaringan::moon_reader:
+    chakra: libs/remark-latest.min.js
+    lib_dir: libs
+    css: ["libs/_css/my_css.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      slideNumberFormat: "%current%"
+      ratio: 16:9
+---
+
+class: agenda
+
+```{r, include=FALSE}
+options(htmltools.dir.version = FALSE, htmltools.preserve.raw = FALSE) # seit rmarkdown 2.6
+knitr::opts_chunk$set(echo = FALSE, comment = "")
+# options(htmltools.dir.version = FALSE)
+# library(reticulate) # Damit ein Python-Code-Block möglich ist, trotz eval = FALSE!
+library(fontawesome)
+library(knitr)
+library(tidyverse)
+library(chartmusicdata)
+```
+
+# Agenda
+
+### .blue[*1. Erste Apps, Grundideen*]
+### 2. Simple Reaktivität: Buttons und Auswahlfelder
+### 3. Downloads anbieten
+### 4. Uploads ermöglichen
+### 5. Dynamische User Interfaces
+### 6. Layout-Optionen
+### 7. Ergänzungen, Ausblick, Literatur
+
+---
+
+layout: true
+
+# 1. Erste Apps, Grundideen
+
+---
+
+## Bla
