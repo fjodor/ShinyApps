@@ -13,7 +13,7 @@ ui <- fluidPage(
     
       h3("Enjoy Exploring the Data!"),
       
-      DTOutput("table")
+      DTOutput(outputId = "table")
 )
 
 server <- function(input, output, session) {
