@@ -1,0 +1,247 @@
+---
+title: "Shiny: Interaktive Webapplikationen mit R"
+subtitle: "Einführung"
+author: "Wolf Riepl"
+institute: " "
+date: "Last Updated: `r Sys.time()`"
+output:
+  xaringan::moon_reader:
+    chakra: libs/remark-latest.min.js
+    lib_dir: libs
+    css: ["libs/_css/my_css.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      slideNumberFormat: "%current%"
+      ratio: 16:9
+---
+
+
+## t-Test: Shiny reagiert direkt
+
+.left-column[
+* mit t-Test "spielen"
+
+* drei Schieberegler
+
+* **Bei jeder Änderung einer Eingabe rechnet die App <u>sofort</u> den Test neu.**
+
+.center[.large[.blue[
+`r fa("hand-point-right")`*** Wie steuern, wann Shiny rechnet? ***
+]]]]
+
+.right-column[
+```{r, out.width = "95%", out.height = "95%"}
+include_graphics("libs/_Images/2a_t-Test-direkt.png")
+```
+]
+
+---
+
+## t-Test: Shiny reagiert direkt: UI
+
+### .red[Vereinfachen: Nur Mittelwert-Diff 1 Slider, Effektstärke weglassen]
+
+.left-column[
+* Schieberegler: `sliderInput()`
+
+* HTML: Shiny-Funktion, um HTML-Code direkt zu verwenden;  
+  hier sind `tags` möglich wie `<b>` oder `<u>`
+]
+.right-column[
+```{r, eval = FALSE, echo = TRUE}
+ui <- fluidPage(
+  titlePanel("t-Test Test-App"),
+  sidebarLayout(
+    sidebarPanel(
+     sliderInput(inputId = "N", label = "N in beiden Gruppen", 
+                 min = 10, max = 1000, value = 30),
+     sliderInput(inputId = "mean1", label = "Mittelwert Gruppe 1", 
+                 min = 10, max = 50, value = 10),
+     sliderInput(inputId = "mean2", label = "Mittelwert Gruppe 2", 
+                 min = 10, max = 50, value = 11),
+     HTML("Standardabweichung: fixiert auf 2"),
+    ),
+    mainPanel(
+      htmlOutput(outputId = "ttest") 
+    )
+  )
+)
+
+```
+
+]
+
+---
+
+## t-Test: Shiny reagiert direkt: Server (1)
+
+### .red[Vereinfachen: Nur Mittelwert-Diff 1 Slider, Effektstärke weglassen]
+
+.left-column[
+* Dynamische Ausgabe durch `renderText()`
+
+* Mehrere Zugriffe auf Input-Variablen:  
+  `input$N`, `input$mean1`, `input$mean2`
+  
+* `r fa("hand-point-right")` Shiny aktualisiert die Ausgabe, sobald sich ein Input ändert
+]
+
+.right-column[
+```{r, echo = TRUE, eval = FALSE}
+server <- function(input, output, session) {
+
+  output$ttest <- renderText({  #<<
+
+    set.seed(1975)
+    data <- data.frame(
+      x = c(rnorm(n = input$N, mean = input$mean1, sd = 2),  #<<
+            rnorm(n = input$N, mean = input$mean2, sd = 2)), #<<
+      group = c(rep("Group 1", input$N), rep("Group 2",input$N)) #<<
+    )
+    
+    ttest <- t.test(x ~ group, data = data)
+    effsize <- tes(ttest$statistic, n.1 = input$N, n.2 = input$N, #<<
+                   verbose = FALSE)
+```
+]
+
+---
+
+## t-Test: Shiny reagiert direkt: Server (2)
+
+### .red[Vereinfachen: Nur Mittelwert-Diff 1 Slider, Effektstärke weglassen]
+
+.left-column[
+* Angabe p-Wert: zuvor berechnetes Objekt `ttest`; `ttest$p.value`
+
+* Englische Interpretation: Einfach dank `report::report()` aus der `easystats`-Sammlung
+]
+.right-column[
+```{r, echo = TRUE, eval = FALSE}
+
+# server <- function(input, output, session) {
+#   output$ttest <- renderText({ ...
+
+  paste("Mittelwert Gruppe 1:", round(mean(
+            data$x[data$group == "Group 1"]), 2), "<br>",
+        "Mittelwert Gruppe 2:", round(mean(
+            data$x[data$group == "Group 2"]), 2), "<br><br>",
+        "Standardabweichung Gruppe 1: 2<br>",
+        "Standardabweichung Gruppe 2: 2<br><br>",
+        "<b>p-Wert:", format.pval(ttest$p.value,   #<<
+                                  digits = 2), "</p>",
+        "Effektstärke (Cohen's d):", effsize$d, "</b><br><br>",
+        "Englische Interpretation: <i>report::report()</i>:<br><br>", 
+            report::report(ttest))  #<<
+  })
+}
+
+
+```
+
+]
+
+---
+
+## t-Test: Shiny rechnet erst, wenn der User es will
+
+Reaktive Ausdrücke - *reactive expressions*
+
+
+---
+
+## Shiny reagiert direkt
+
+.left-column[
+* einfaches Drop-Down-Feld
+
+* Künstler / Band auswählen
+
+* Zusatzinfos per Mauszeiger dank **plotly::ggplotly()**
+
+* **Bei jeder neuen Auswahl zeichnet die App <u>sofort</u> die Grafik neu.**
+]
+
+.right-column[
+```{r, out.width = "85%", out.height = "85%"}
+include_graphics("libs/_Images/2a_simple-dropdown.png")
+```
+]
+
+---
+
+## Shiny reagiert direkt: UI
+
+.left-column[
+* Dropdown: `selectInput()`
+
+* Grafikfeld: **`plotlyOutput()`**
+
+* h2: Überschrift Ebene 2
+]
+.right-column[
+```{r, eval = FALSE, echo = TRUE}
+ui <- fluidPage(
+  
+  titlePanel("Simples Dropdown"),
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      selectInput(inputId = "bandname",  #<< 
+                  label = "Künstler / Band auswählen",
+                  choices = artists, selected = "Drake")
+    ),
+    
+    mainPanel(
+      h2("Daten aus songs2000"),
+      plotlyOutput(outputId = "bandplot")  #<<
+    )
+  )
+)
+
+```
+
+]
+
+---
+
+## Shiny reagiert direkt: Server
+
+.left-column[
+* Dynamische Ausgabe durch `renderPlotly()`
+
+* Zugriff auf Input-Variable:  
+  `input$bandname`
+  
+* `r fa("hand-point-right")` Shiny aktualisiert die Ausgabe, sobald sich der Input ändert
+
+* `ntes_label()`: Benutzerdefinierte Funktion, siehe Skript - nicht jeden Monat beschriften
+]
+
+.right-column[
+```{r, echo = TRUE, eval = FALSE}
+server <- function(input, output, session) {
+    output$bandplot <- renderPlotly({  #<<
+    p <- songsdata %>% 
+      filter(artist == input$bandname) %>% 
+      ggplot(aes(x = year_month, y = indicativerevenue, 
+                 color = song, group = artist)) +
+        geom_point(size = 1.5) +
+        labs(title = paste("Songs von", input$bandname),  #<<
+             x = "Monat und Jahr",
+             y = "Indicative Revenue in USD") +
+        scale_x_discrete(breaks = ntes_label()) +
+        scale_y_continuous(labels = scales::label_dollar(scale = 1000)) +
+        theme_bw(base_size = 14) +
+        theme(axis.text.x = element_text(angle = 90),
+              legend.position = "none")
+    ggplotly(p)
+    })
+}
+```
+]
+
+---
