@@ -1,5 +1,7 @@
 # Skeleton for an event chain in Shiny
-
+# For the server function, check here:
+# https://www.statworx.com/en/content-hub/blog/master-r-shiny-one-trick-to-build-maintainable-and-scaleable-event-chains/
+  
 library(shiny)
 
 ui <- fluidPage(
