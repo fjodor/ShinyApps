@@ -43,6 +43,63 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   
+  # First evaluate superpower and provide feedback,
+  # then evaluate why born and provide feedback (or open specific tabs)
+
+  rv <- reactiveValues(
+    superpower = FALSE,
+    whyBorn = FALSE
+  )
+  
+  observe({
+    rv$superpower <- !(rv$superpower)
+  }) |> bindEvent(input$evaluate, ignoreInit = TRUE)
+ 
+  observe({
+
+    num <- as.numeric(input$superpower)
+    
+    showModal(modalDialog(
+      title = "Evaluation: Superpower",
+
+      if (num > 10) {
+        "You're in on the Spiritual Path!"
+      } else {
+        "Best of luck!"
+      },
+      
+      footer = actionButton("stepWhyBorn", "Next: Evaluate 'Why born?'")
+      
+    ))
+
+  }) |> bindEvent(rv$superpower, ignoreInit = TRUE)
+
+  observe({
+    rv$whyBorn <- !(rv$whyBorn)
+  }) |> bindEvent(input$stepWhyBorn, ignoreInit = TRUE)
+
+  observe({
+    
+    num <- sum(as.numeric(input$whyBorn))
+    
+    showModal(modalDialog(
+      title = "Evaluation: Why were you born?",
+      
+      if (num > 10) {
+        "You're in on the Spiritual Path!"
+      } else {
+        "Best of luck!"
+      },
+      
+      footer = actionButton("end", "OK - end of App")
+      
+    ))
+    
+  }) |> bindEvent(rv$whyBorn, ignoreInit = TRUE)
+
+  observe({
+    stopApp(42)
+  }) |> bindEvent(input$end, ignoreInit = TRUE)
 }
 
 shinyApp(ui, server)
